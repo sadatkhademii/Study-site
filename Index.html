@@ -40,7 +40,16 @@
             <button onclick="generateReport()">نمایش گزارش</button>
             <div id="reportOutput"></div> 
             <button onclick="generateWeeklyReport()">نمایش گزارش هفتگی</button>
-        </section>
+        </section> 
+        <section id="charts">
+    <h2>نمودارها</h2>
+    <canvas id="studyChart" width="400" height="200"></canvas>
+    <canvas id="testChart" width="400" height="200"></canvas>
+    <button onclick="generateWeeklySummary()">جمع‌بندی هفتگی</button>
+    <button onclick="generateMonthlySummary()">جمع‌بندی ماهانه</button>
+    <div id="summaryOutput"></div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> /* اضافه Chart.js برای نمودارها */
     </div>
     <script src="script.js"></script>
 </body>
