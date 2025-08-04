@@ -62,3 +62,17 @@ input[type="number"] {
         display: none; /* دکمه‌ها در پرینت پنهان */
     }
 }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #2a2f3a;
+    padding: 8px;
+    text-align: center;
+}
+th {
+    background-color: #1e1e1e;
+    color: #4caf50;
+}
