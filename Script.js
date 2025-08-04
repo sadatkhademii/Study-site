@@ -131,3 +131,9 @@
      advice += '</p>';
      document.getElementById('reportOutput').innerHTML += advice;
  }; 
+// انیمیشن زنده برای بخش‌ها (فعال شدن با ثبت)
+const originalSaveData = saveData;
+saveData = function() {
+    originalSaveData();
+    document.getElementById('registration').style.animation = 'fadeIn 1s ease-in';
+};
