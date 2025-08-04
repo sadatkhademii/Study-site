@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -40,15 +40,12 @@
             <button onclick="generateReport()">نمایش گزارش</button>
             <div id="reportOutput"></div>
         </section>
-        <section id="charts">
-            <h2>نمودارها</h2>
-            <canvas id="studyChart" width="400" height="200"></canvas>
-            <canvas id="testChart" width="400" height="200"></canvas>
-            <button onclick="generateWeeklySummary()">جمع‌بندی هفتگی</button>
-            <button onclick="generateMonthlySummary()">جمع‌بندی ماهانه</button>
-            <div id="summaryOutput"></div>
+        <section id="backup">
+            <h2>بک‌آپ داده‌ها</h2>
+            <button onclick="exportData()">دانلود بک‌آپ</button>
+            <input type="file" id="importFile" accept=".json">
+            <button onclick="importData()">آپلود بک‌آپ</button>
         </section>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="script.js"></script>
     </div>
 </body>
