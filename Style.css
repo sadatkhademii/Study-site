@@ -83,3 +83,17 @@ th {
     border-radius: 5px;
     text-align: right;
 }
+#charts {
+    margin-top: 30px;
+}
+canvas {
+    margin: 20px auto;
+    display: block;
+}
+#summaryOutput {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-radius: 5px;
+    text-align: right;
+}
