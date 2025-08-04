@@ -131,3 +131,67 @@
          document.getElementById('reportOutput').innerHTML += advice;
      };
  };
+// تابع AI نصیحت بروز (روزانه و هفتگی)
+function aiAdvice(data, isWeekly = false) {
+    let advice = '<p>نصیحت AI: ';
+    let totalTime = 0;
+    let lessonCounts = {};
+    data.forEach(item => {
+        totalTime += item.studyTime || 0;
+        lessonCounts[item.lesson] = (lessonCounts[item.lesson] || 0) + 1;
+    });
+    const goal = 8; // ساعت هدف روزانه، تغییر بده
+    const weeklyGoal = goal * 7;
+    if (isWeekly) {
+        advice += 'این هفته ' + totalTime.toFixed(2) + ' ساعت مطالعه کردی. اگر کمتر از ' + weeklyGoal + ' بود، سرعتت کند هست—درس‌های ضعیف مثل ' + Object.keys(lessonCounts).sort((a, b) => lessonCounts[a] - lessonCounts[b])[0] + ' رو بیشتر مرور کن (حداقل ۳ بار). با این سرعت، پیشرفتت ' + (totalTime / weeklyGoal * 100).toFixed(0) + '% هست.';
+    } else {
+        advice += 'امروز ' + totalTime.toFixed(2) + ' ساعت مطالعه کردی. اگر کمتر از ' + goal + ' بود، فردا تمرکز کن—ضعف در ' + Object.keys(lessonCounts).sort((a, b) => lessonCounts[a] - lessonCounts[b])[0] + ' دیده می‌شه، ۲-۳ بار مرور کن.';
+    }
+    advice += '</p>';
+    return advice;
+}
+
+// تابع گزارش هفتگی (جدول زیبا)
+function generateWeeklyReport() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const weeklyData = data.filter(item => new Date(item.time) >= oneWeekAgo);
+        let output = '<table><tr><th>درس</th><th>سرفصل</th><th>فعالیت</th><th>تعداد تست</th><th>مدت تست</th><th>زمان مطالعه</th><th>زمان ثبت</th></tr>';
+        weeklyData.forEach(item => {
+            const studyDisplay = item.studyHours + ':' + item.studyMinutes;
+            output += '<tr><td>' + item.lesson + '</td><td>' + item.subsection + '</td><td>' + item.activity + '</td><td>' + item.testCount + '</td><td>' + item.testTime + '</td><td>' + studyDisplay + '</td><td>' + item.time + '</td></tr>';
+            if (item.generalLesson) output += '<tr><td colspan="7">درس عمومی: ' + item.generalLesson + ' - مبحث: ' + item.generalSub + '</td></tr>';
+        });
+        output += '</table>';
+        output += aiAdvice(weeklyData, true);
+        document.getElementById('reportOutput').innerHTML = output;
+        document.getElementById('reportOutput').innerHTML += '<button onclick="window.print()">پرینت گزارش هفتگی</button>';
+    };
+}
+
+// بروز generateReport برای اضافه AI روزانه
+function generateReport() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        const todayStr = new Date().toLocaleDateString('fa-IR');
+        const dailyData = data.filter(item => item.time.startsWith(todayStr));
+        let output = '<table><tr><th>درس</th><th>سرفصل</th><th>فعالیت</th><th>تعداد تست</th><th>مدت تست</th><th>زمان مطالعه</th><th>زمان ثبت</th></tr>';
+        dailyData.forEach(item => {
+            const studyDisplay = item.studyHours + ':' + item.studyMinutes;
+            output += '<tr><td>' + item.lesson + '</td><td>' + item.subsection + '</td><td>' + item.activity + '</td><td>' + item.testCount + '</td><td>' + item.testTime + '</td><td>' + studyDisplay + '</td><td>' + item.time + '</td></tr>';
+            if (item.generalLesson) output += '<tr><td colspan="7">درس عمومی: ' + item.generalLesson + ' - مبحث: ' + item.generalSub + '</td></tr>';
+        });
+        output += '</table>';
+        output += aiAdvice(dailyData);
+        document.getElementById('reportOutput').innerHTML = output;
+        document.getElementById('reportOutput').innerHTML += '<button onclick="window.print()">پرینت گزارش روزانه</button>';
+    };
+};
