@@ -1,0 +1,38 @@
+body {
+    background-color: #0f111a; /* سبز تیره هاگوارتز برای پس‌زمینه */
+    color: #d4d4d4; /* نقره‌ای برای متن، چشم رو خسته نمی‌کنه */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* فونت ساده فانتزی */
+    text-align: center; /* متن وسط چین */
+    margin: 0;
+    padding: 20px;
+    direction: rtl; /* راست به چپ برای فارسی */
+}
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    border: 2px solid #2a2f3a; /* حاشیه جادویی */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.1); /* سایه سبز فانتزی */
+}
+h1, h2 {
+    color: #4caf50; /* سبز روشن برای عنوان‌ها */
+}
+button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #388e3c;
+}
+#reportOutput {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-radius: 5px;
+    text-align: right; /* راست چین برای گزارش */
+}
