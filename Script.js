@@ -4,17 +4,18 @@
  const daysLeft = Math.ceil((konkorDate - today) / (1000 * 60 * 60 * 24));
  document.getElementById('daysToKonkor').innerText = daysLeft + ' روز';
 
- // نمایش تاریخ و ساعت ایران (شمسی و ساعت)
+ // نمایش تاریخ و ساعت ایران با حرکت زنده (هر ثانیه بروز)
  function updateDateTime() {
-     const now = new Date().toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' });
-     const parts = now.split(', ');
-     document.getElementById('currentDate').innerText = parts[0];
-     document.getElementById('currentTime').innerText = parts[1];
+     const now = new Date();
+     const date = now.toLocaleDateString('fa-IR', { timeZone: 'Asia/Tehran' });
+     const time = now.toLocaleTimeString('fa-IR', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+     document.getElementById('currentDate').innerText = date;
+     document.getElementById('currentTime').innerText = time;
  }
  updateDateTime();
- setInterval(updateDateTime, 60000); // بروز هر دقیقه
+ setInterval(updateDateTime, 1000); // بروز هر ثانیه برای حرکت زنده
 
- // شروع IndexedDB
+ // شروع IndexedDB برای ذخیره محلی
  let db;
  const request = indexedDB.open('StudyDB', 1);
  request.onupgradeneeded = (event) => {
@@ -85,7 +86,7 @@
      alert('ثبت شد!');
  }
 
- // تابع گزارش (بروز با جدول زیبا)
+ // تابع گزارش (با جدول زیبا)
  function generateReport() {
      const tx = db.transaction('lessons', 'readonly');
      const store = tx.objectStore('lessons');
@@ -102,5 +103,31 @@
          document.getElementById('reportOutput').innerHTML = output;
          aiAdvice();
          document.getElementById('reportOutput').innerHTML += '<button onclick="window.print()">پرینت گزارش</button>';
+     };
+ };
+
+ // تابع AI نصیحت (بروز شده)
+ function aiAdvice() {
+     const tx = db.transaction('lessons', 'readonly');
+     const store = tx.objectStore('lessons');
+     const request = store.getAll();
+     request.onsuccess = (event) => {
+         const data = event.target.result;
+         let advice = '<p>نصیحت AI: ';
+         const todayStr = new Date().toLocaleDateString('fa-IR');
+         let todayTime = 0;
+         data.forEach(item => {
+             if (item.time.startsWith(todayStr) ) {
+                 todayTime += item.studyTime || 0;
+             }
+         });
+         const goal = 8; // ساعت هدف، تغییر بده
+         if (todayTime < goal) {
+             advice += 'امروز کم مطالعه کردی (' + todayTime.toFixed(2) + ' ساعت از ' + goal + ')—فردا تمرکز بیشتر کن!';
+         } else {
+             advice += 'عالی بودی امروز (' + todayTime.toFixed(2) + ' ساعت)—ادامه بده!';
+         }
+         advice += '</p>';
+         document.getElementById('reportOutput').innerHTML += advice;
      };
  };
