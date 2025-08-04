@@ -1,10 +1,10 @@
- // محاسبه روزهای مونده تا کنکور (خرداد/تیر ۱۴۰۵ شمسی، معادل ژوئن/جولای ۲۰۲۶ میلادی)
- const konkorDate = new Date('2026-06-28'); // تاریخ تقریبی، اگر دقیق می‌دونی تغییر بده
+ // محاسبه روزهای مونده تا کنکور (۷ تیر ۱۴۰۵ شمسی = ۲۰۲۶-۰۶-۲۸ میلادی)
+ const konkorDate = new Date('2026-06-28'); // تاریخ دقیق
  const today = new Date();
  const daysLeft = Math.ceil((konkorDate - today) / (1000 * 60 * 60 * 24));
  document.getElementById('daysToKonkor').innerText = daysLeft + ' روز';
 
- // شروع IndexedDB
+ // شروع IndexedDB برای ذخیره محلی
  let db;
  const request = indexedDB.open('StudyDB', 1);
  request.onupgradeneeded = (event) => {
@@ -15,30 +15,6 @@
      db = event.target.result;
  };
 
- // تابع ذخیره داده (حالا با درس انتخابی)
- function saveData() {
-     const lesson = document.getElementById('lesson').value;
-     const tx = db.transaction('lessons', 'readwrite');
-     const store = tx.objectStore('lessons');
-     store.add({ lesson: lesson, time: new Date().toLocaleString('fa-IR') });
-     alert('درس ذخیره شد!');
- }
-
-
- // تابع گزارش
- function generateReport() {
-     const tx = db.transaction('lessons', 'readonly');
-     const store = tx.objectStore('lessons');
-     const request = store.getAll();
-     request.onsuccess = (event) => {
-         const data = event.target.result;
-         let output = '<p>تعداد ثبت‌ها: ' + data.length + '</p>';
-         data.forEach(item => {
-             output += '<p>' + item.lesson + ' در ' + item.time + '</p>';
-         });
-         document.getElementById('reportOutput').innerHTML = output;
-     };
- }
  // تعریف درس و سرفصل‌ها
  const lessons = {
      'زیست دهم': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار', 'فصل پنج', 'فصل شیش', 'فصل هفت'],
@@ -79,3 +55,36 @@
      document.getElementById('generalLesson').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
      document.getElementById('generalSub').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
  });
+
+ // تابع ذخیره داده (بروز شده)
+ function saveData() {
+     const lesson = document.getElementById('lesson').value;
+     const subsection = document.getElementById('subsection').value;
+     const activity = document.getElementById('activity').value;
+     const testCount = document.getElementById('testCount').value;
+     const testTime = document.getElementById('testTime').value;
+     const studyTime = document.getElementById('studyTime').value;
+     const generalLesson = document.getElementById('generalLesson').value;
+     const generalSub = document.getElementById('generalSub').value;
+
+     const tx = db.transaction('lessons', 'readwrite');
+     const store = tx.objectStore('lessons');
+     store.add({ lesson, subsection, activity, testCount, testTime, studyTime, generalLesson, generalSub, time: new Date().toLocaleString('fa-IR') });
+     alert('ثبت شد!');
+ }
+
+ // تابع گزارش (بروز شده)
+ function generateReport() {
+     const tx = db.transaction('lessons', 'readonly');
+     const store = tx.objectStore('lessons');
+     const request = store.getAll();
+     request.onsuccess = (event) => {
+         const data = event.target.result;
+         let output = '<p>تعداد ثبت‌ها: ' + data.length + '</p>';
+         data.forEach(item => {
+             output += '<p>درس: ' + item.lesson + ' - سرفصل: ' + item.subsection + ' - فعالیت: ' + item.activity + ' - تعداد تست: ' + item.testCount + ' - مدت تست: ' + item.testTime + ' دقیقه - ساعت مطالعه: ' + item.studyTime + ' - زمان: ' + item.time + '</p>';
+             if (item.generalLesson) output += '<p>درس عمومی: ' + item.generalLesson + ' - مبحث: ' + item.generalSub + '</p>';
+         });
+         document.getElementById('reportOutput').innerHTML = output;
+     };
+ }
