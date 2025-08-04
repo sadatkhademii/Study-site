@@ -93,3 +93,9 @@ canvas {
         display: none;
     }
 }
+#backup {
+    margin-top: 30px;
+}
+#importFile {
+    margin: 10px;
+}
