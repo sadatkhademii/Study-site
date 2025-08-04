@@ -1,4 +1,4 @@
- window.onload = function() {
+window.onload = function() {
  // محاسبه روزهای مونده تا کنکور (۷ تیر ۱۴۰۵ = ۲۰۲۶-۰۶-۲۸)
  const konkorDate = new Date('2026-06-28');
  const today = new Date();
@@ -16,19 +16,20 @@
  updateDateTime();
  setInterval(updateDateTime, 1000);
 
- // وصل به Firebase برای ذخیره محلی
- const firebaseConfig = {
-   apiKey: "AIzaSyBYAI9yq3qlxWTc6QLGtYbXvEmO45RRaLU",
-   authDomain: "study-site-78df6.firebaseapp.com",
-   projectId: "study-site-78df6",
-   storageBucket: "study-site-78df6.firebasestorage.app",
-   messagingSenderId: "737923354275",
-   appId: "1:737923354275:web:f9936293913fe1b8517916",
-   measurementId: "G-TEZ2BRETHS"
+ // شروع IndexedDB برای ذخیره محلی
+ let db;
+ const request = indexedDB.open('StudyDB', 1);
+ request.onupgradeneeded = (event) => {
+     db = event.target.result;
+     db.createObjectStore('lessons', { keyPath: 'id', autoIncrement: true });
  };
-
- firebase.initializeApp(firebaseConfig);
- const db = firebase.firestore();
+ request.onsuccess = (event) => {
+     db = event.target.result;
+     loadLessons(); // لود درس‌ها بعد از db
+ };
+ request.onerror = (event) => {
+     console.error('خطا در IndexedDB:', event.target.errorCode);
+ };
 
  // تعریف درس و سرفصل‌ها
  const lessons = {
@@ -45,43 +46,35 @@
      'ریاضی': ['مجموعه و الگو و دنباله', 'توان های گویا و عبارت جبری', 'معادله نامعادله درجه دو', 'تابع', 'مثلثات', 'توابع نمایی و لگاریتمی', 'هندسه', 'حد و پیوستگی', 'مشتق', 'کاربرد مشتق', 'هندسه دوازدهم', 'شمارش بدون شمردن', 'احتمال'],
      'عمومی': [] 
  };
- console.log('درس‌ها لود شد: ', lessons); // دیباگ، در کنسول ببین
 
- // پر کردن سلکت درس
- const lessonSelect = document.getElementById('lesson');
- if (lessonSelect) {
+ // تابع لود درس‌ها بعد از db
+ function loadLessons() {
+     const lessonSelect = document.getElementById('lesson');
      Object.keys(lessons).forEach(lesson => {
          const option = document.createElement('option');
          option.text = lesson;
          lessonSelect.add(option);
      });
-     console.log('سلکت درس پر شد');
- } else {
-     console.error('سلکت lesson پیدا نشد');
  }
 
  // بروز سرفصل بر اساس درس
+ const lessonSelect = document.getElementById('lesson');
  lessonSelect.addEventListener('change', () => {
      const selectedLesson = lessonSelect.value;
      const subsectionSelect = document.getElementById('subsection');
-     if (subsectionSelect) {
-         subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
-         if (lessons[selectedLesson]) {
-             lessons[selectedLesson].forEach(sub => {
-                 const option = document.createElement('option');
-                 option.text = sub;
-                 subsectionSelect.add(option);
-             });
-             console.log('سرفصل‌ها پر شد برای ' + selectedLesson);
-         }
-     } else {
-         console.error('سلکت subsection پیدا نشد');
+     subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
+     if (lessons[selectedLesson]) {
+         lessons[selectedLesson].forEach(sub => {
+             const option = document.createElement('option');
+             option.text = sub;
+             subsectionSelect.add(option);
+         });
      }
      document.getElementById('generalLesson').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
      document.getElementById('generalSub').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
  });
 
- // تابع ذخیره داده (بروز با Firebase)
+ // تابع ذخیره داده (با IndexedDB محلی)
  function saveData() {
      const lesson = document.getElementById('lesson').value;
      const subsection = document.getElementById('subsection').value;
@@ -95,41 +88,38 @@
 
      const studyTime = parseInt(studyHours) + parseInt(studyMinutes) / 60;
 
-     db.collection("lessons").add({
-         lesson, subsection, activity, testCount, testTime, studyTime, studyHours, studyMinutes, generalLesson, generalSub, time: new Date().toLocaleString('fa-IR')
-     })
-     .then(() => {
-         alert('ثبت شد!');
-     })
-     .catch((error) => {
-         alert('خطا در ذخیره: ' + error);
-     });
+     const tx = db.transaction("lessons", "readwrite");
+     const store = tx.objectStore("lessons");
+     store.add({ lesson, subsection, activity, testCount, testTime, studyTime, studyHours, studyMinutes, generalLesson, generalSub, time: new Date().toLocaleString('fa-IR') });
+     alert('ثبت شد!');
  }
 
- // تابع گزارش (با جدول زیبا، از Firebase)
+ // تابع گزارش (با جدول زیبا، از IndexedDB)
  function generateReport() {
-     db.collection("lessons").get().then((querySnapshot) => {
+     const tx = db.transaction("lessons", "readonly");
+     const store = tx.objectStore("lessons");
+     const request = store.getAll();
+     request.onsuccess = (event) => {
+         const data = event.target.result;
          let output = '<table><tr><th>درس</th><th>سرفصل</th><th>فعالیت</th><th>تعداد تست</th><th>مدت تست</th><th>زمان مطالعه</th><th>زمان ثبت</th></tr>';
-         querySnapshot.forEach((doc) => {
-             const item = doc.data();
+         data.forEach(item => {
              const studyDisplay = item.studyHours + ':' + item.studyMinutes;
              output += '<tr><td>' + item.lesson + '</td><td>' + item.subsection + '</td><td>' + item.activity + '</td><td>' + item.testCount + '</td><td>' + item.testTime + '</td><td>' + studyDisplay + '</td><td>' + item.time + '</td></tr>';
              if (item.generalLesson) output += '<tr><td colspan="7">درس عمومی: ' + item.generalLesson + ' - مبحث: ' + item.generalSub + '</td></tr>';
          });
          output += '</table>';
          document.getElementById('reportOutput').innerHTML = output;
-         aiAdvice(querySnapshot);
+         aiAdvice(data);
          document.getElementById('reportOutput').innerHTML += '<button onclick="window.print()">پرینت گزارش</button>';
-     });
+     };
  };
 
- // تابع AI نصیحت (بروز شده با Firebase)
- function aiAdvice(querySnapshot) {
+ // تابع AI نصیحت (بروز شده با IndexedDB)
+ function aiAdvice(data) {
      let advice = '<p>نصیحت AI: ';
      let totalTime = 0;
      const todayStr = new Date().toLocaleDateString('fa-IR');
-     querySnapshot.forEach((doc) => {
-         const item = doc.data();
+     data.forEach(item => {
          if (item.time.startsWith(todayStr)) {
              totalTime += item.studyTime || 0;
          }
@@ -143,3 +133,41 @@
      advice += '</p>';
      document.getElementById('reportOutput').innerHTML += advice;
  };
+};
+
+ // تابع export داده‌ها (برای بک‌آپ دائمی)
+ function exportData() {
+     const tx = db.transaction("lessons", "readonly");
+     const store = tx.objectStore("lessons");
+     const request = store.getAll();
+     request.onsuccess = (event) => {
+         const data = event.target.result;
+         const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+         const url = URL.createObjectURL(blob);
+         const a = document.createElement('a');
+         a.href = url;
+         a.download = 'study-backup.json';
+         a.click();
+     };
+ }
+
+ // تابع import داده‌ها (برای بازگردانی بک‌آپ)
+ function importData() {
+     const file = document.getElementById('importFile').files[0];
+     if (file) {
+         const reader = new FileReader();
+         reader.onload = (e) => {
+             const data = JSON.parse(e.target.result);
+             const tx = db.transaction("lessons", "readwrite");
+             const store = tx.objectStore("lessons");
+             store.clear(); // پاک کردن قدیمی
+             data.forEach(item => {
+                 store.add(item);
+             });
+             alert('بک‌آپ بازگردانی شد!');
+         };
+         reader.readAsText(file);
+     } else {
+         alert('فایل انتخاب کن!');
+     }
+ }
