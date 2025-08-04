@@ -195,3 +195,103 @@ function generateReport() {
         document.getElementById('reportOutput').innerHTML += '<button onclick="window.print()">پرینت گزارش روزانه</button>';
     };
 };
+// تابع بروز نمودار زنده (روزانه)
+function updateCharts() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        const dailyStudy = {};
+        const dailyTest = {};
+        data.forEach(item => {
+            const date = item.time.split(', ')[0];
+            dailyStudy[date] = (dailyStudy[date] || 0) + item.studyTime;
+            dailyTest[date] = (dailyTest[date] || 0) + parseInt(item.testCount) || 0;
+        });
+        const dates = Object.keys(dailyStudy).sort();
+        const studyValues = dates.map(date => dailyStudy[date]);
+        const testValues = dates.map(date => dailyTest[date]);
+
+        // نمودار ساعت مطالعه
+        const studyCtx = document.getElementById('studyChart').getContext('2d');
+        new Chart(studyCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{ label: 'ساعت مطالعه روزانه', data: studyValues, borderColor: '#4caf50' }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+
+        // نمودار تعداد تست
+        const testCtx = document.getElementById('testChart').getContext('2d');
+        new Chart(testCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{ label: 'تعداد تست روزانه', data: testValues, borderColor: '#388e3c' }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    };
+}
+// بروز با هر ثبت
+const originalSaveData = saveData;
+saveData = function() {
+    originalSaveData();
+    updateCharts();
+};
+updateCharts(); // اولیه
+
+// تابع جمع‌بندی هفتگی (جدول و پرینت)
+function generateWeeklySummary() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const weeklyData = data.filter(item => new Date(item.time) >= oneWeekAgo);
+        let output = '<table><tr><th>روز</th><th>مجموع ساعت مطالعه</th><th>مجموع تست</th></tr>';
+        const weeklySummary = {};
+        weeklyData.forEach(item => {
+            const date = item.time.split(', ')[0];
+            weeklySummary[date] = weeklySummary[date] || { study: 0, test: 0 };
+            weeklySummary[date].study += item.studyTime;
+            weeklySummary[date].test += parseInt(item.testCount) || 0;
+        });
+        Object.keys(weeklySummary).forEach(date => {
+            output += '<tr><td>' + date + '</td><td>' + weeklySummary[date].study.toFixed(2) + '</td><td>' + weeklySummary[date].test + '</td></tr>';
+        });
+        output += '</table>';
+        document.getElementById('summaryOutput').innerHTML = output + '<button onclick="window.print()">پرینت جمع‌بندی</button>';
+    };
+}
+
+// تابع جمع‌بندی ماهانه (مشابه)
+function generateMonthlySummary() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        const monthlyData = data.filter(item => new Date(item.time) >= oneMonthAgo);
+        let output = '<table><tr><th>روز</th><th>مجموع ساعت مطالعه</th><th>مجموع تست</th></tr>';
+        const monthlySummary = {};
+        monthlyData.forEach(item => {
+            const date = item.time.split(', ')[0];
+            monthlySummary[date] = monthlySummary[date] || { study: 0, test: 0 };
+            monthlySummary[date].study += item.studyTime;
+            monthlySummary[date].test += parseInt(item.testCount) || 0;
+        });
+        Object.keys(monthlySummary).forEach(date => {
+            output += '<tr><td>' + date + '</td><td>' + monthlySummary[date].study.toFixed(2) + '</td><td>' + monthlySummary[date].test + '</td></tr>';
+        });
+        output += '</table>';
+        document.getElementById('summaryOutput').innerHTML = output + '<button onclick="window.print()">پرینت جمع‌بندی</button>';
+    };
+} 
