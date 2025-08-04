@@ -1,4 +1,4 @@
-body {
+ body {
     background-color: #0f111a; /* سبز تیره هاگوارتز */
     color: #d4d4d4; /* نقره‌ای */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -65,19 +65,12 @@ input, select {
 input[type="number"] {
     width: 150px;
 }
-#reportOutput, #summaryOutput {
+#reportOutput {
     margin-top: 20px;
     padding: 10px;
     background-color: #1e1e1e;
     border-radius: 5px;
     text-align: right;
-}
-#charts {
-    margin-top: 30px;
-}
-canvas {
-    margin: 20px auto;
-    display: block;
 }
 @media print {
     body {
@@ -92,31 +85,4 @@ canvas {
     button {
         display: none;
     }
-}
-#backup {
-    margin-top: 30px;
-}
-#importFile {
-    margin: 10px;
-}
-#charts {
-    margin-top: 30px;
-}
-canvas {
-    margin: 20px auto;
-    display: block;
-}
-#summaryOutput {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #1e1e1e;
-    border-radius: 5px;
-    text-align: right;
-}
-#weeklyReportOutput {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #1e1e1e;
-    border-radius: 5px;
-    text-align: right;
 }
