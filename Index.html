@@ -39,7 +39,15 @@
             <h2>گزارش روزانه</h2>
             <button onclick="generateReport()">نمایش گزارش</button>
             <div id="reportOutput"></div>
-        </section>
+        </section> 
+     <section id="charts">
+    <h2>نمودارها</h2>
+    <canvas id="studyChart" width="400" height="200"></canvas>
+    <canvas id="testChart" width="400" height="200"></canvas>
+    <button onclick="generateWeeklyReport()">نمایش گزارش هفتگی</button>
+    <div id="weeklyReportOutput"></div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> /* اضافه Chart.js برای نمودارها */
         <section id="backup">
             <h2>بک‌آپ داده‌ها</h2>
             <button onclick="exportData()">دانلود بک‌آپ</button>
