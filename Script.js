@@ -1,3 +1,4 @@
+ window.onload = function() {
  // محاسبه روزهای مونده تا کنکور (۷ تیر ۱۴۰۵ = ۲۰۲۶-۰۶-۲۸)
  const konkorDate = new Date('2026-06-28');
  const today = new Date();
@@ -15,7 +16,7 @@
  updateDateTime();
  setInterval(updateDateTime, 1000);
 
- // وصل به Firebase برای ذخیره دائمی
+ // وصل به Firebase برای ذخیره محلی
  const firebaseConfig = {
    apiKey: "AIzaSyBYAI9yq3qlxWTc6QLGtYbXvEmO45RRaLU",
    authDomain: "study-site-78df6.firebaseapp.com",
@@ -44,26 +45,37 @@
      'ریاضی': ['مجموعه و الگو و دنباله', 'توان های گویا و عبارت جبری', 'معادله نامعادله درجه دو', 'تابع', 'مثلثات', 'توابع نمایی و لگاریتمی', 'هندسه', 'حد و پیوستگی', 'مشتق', 'کاربرد مشتق', 'هندسه دوازدهم', 'شمارش بدون شمردن', 'احتمال'],
      'عمومی': [] 
  };
+ console.log('درس‌ها لود شد: ', lessons); // دیباگ، در کنسول ببین
 
  // پر کردن سلکت درس
  const lessonSelect = document.getElementById('lesson');
- Object.keys(lessons).forEach(lesson => {
-     const option = document.createElement('option');
-     option.text = lesson;
-     lessonSelect.add(option);
- });
+ if (lessonSelect) {
+     Object.keys(lessons).forEach(lesson => {
+         const option = document.createElement('option');
+         option.text = lesson;
+         lessonSelect.add(option);
+     });
+     console.log('سلکت درس پر شد');
+ } else {
+     console.error('سلکت lesson پیدا نشد');
+ }
 
  // بروز سرفصل بر اساس درس
  lessonSelect.addEventListener('change', () => {
      const selectedLesson = lessonSelect.value;
      const subsectionSelect = document.getElementById('subsection');
-     subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
-     if (lessons[selectedLesson]) {
-         lessons[selectedLesson].forEach(sub => {
-             const option = document.createElement('option');
-             option.text = sub;
-             subsectionSelect.add(option);
-         });
+     if (subsectionSelect) {
+         subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
+         if (lessons[selectedLesson]) {
+             lessons[selectedLesson].forEach(sub => {
+                 const option = document.createElement('option');
+                 option.text = sub;
+                 subsectionSelect.add(option);
+             });
+             console.log('سرفصل‌ها پر شد برای ' + selectedLesson);
+         }
+     } else {
+         console.error('سلکت subsection پیدا نشد');
      }
      document.getElementById('generalLesson').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
      document.getElementById('generalSub').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
