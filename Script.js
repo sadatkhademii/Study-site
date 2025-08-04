@@ -1,4 +1,4 @@
- window.onload = function() {
+window.onload = function() {
   // محاسبه روزهای مونده تا کنکور (۷ تیر ۱۴۰۵ = ۲۰۲۶-۰۶-۲۸)
   const konkorDate = new Date('2026-06-28');
   const today = new Date();
