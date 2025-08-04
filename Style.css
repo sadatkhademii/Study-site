@@ -48,3 +48,17 @@ input, select {
 input[type="number"] {
     width: 150px;
 }
+@media print {
+    body {
+        background-color: white;
+        color: black;
+        font-size: 12pt;
+    }
+    .container {
+        box-shadow: none;
+        border: none;
+    }
+    button {
+        display: none; /* دکمه‌ها در پرینت پنهان */
+    }
+}
