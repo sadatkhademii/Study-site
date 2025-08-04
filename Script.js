@@ -88,3 +88,67 @@
          document.getElementById('reportOutput').innerHTML = output;
      };
  }
+// تابع AI نصیحت روزانه (ساده، بر اساس داده‌ها)
+function aiAdvice() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        let advice = '<p>نصیحت AI: ';
+        if (data.length > 0) {
+            let totalTime = 0;
+            data.forEach(item => {
+                totalTime += parseInt(item.studyTime) || 0;
+            });
+            advice += 'امروز ' + totalTime + ' ساعت مطالعه کردی. اگر کمتر از هدفت بود، فردا تمرکز بیشتر کن. ضعف در فیزیک دیده می‌شه—مرور ۳ بار لازم داری. سرعتت خوب هست اما ادامه بده!';
+        } else {
+            advice += 'امروز هیچ ثبت نکردی—شروع کن جادوگر!';
+        }
+        advice += '</p>';
+        document.getElementById('reportOutput').innerHTML += advice;
+    };
+}
+
+// بروز تابع generateReport برای اضافه AI و پرینت
+function generateReport() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        let output = '<p>تعداد ثبت‌ها: ' + data.length + '</p>';
+        data.forEach(item => {
+            output += '<p>درس: ' + item.lesson + ' - سرفصل: ' + item.subsection + ' - فعالیت: ' + item.activity + ' - تعداد تست: ' + item.testCount + ' - مدت تست: ' + item.testTime + ' دقیقه - ساعت مطالعه: ' + item.studyTime + ' - زمان: ' + item.time + '</p>';
+            if (item.generalLesson) output += '<p>درس عمومی: ' + item.generalLesson + ' - مبحث: ' + item.generalSub + '</p>';
+        });
+        document.getElementById('reportOutput').innerHTML = output;
+        aiAdvice(); // اضافه AI
+        // برای پرینت، دکمه اضافه
+        document.getElementById('reportOutput').innerHTML += '<button onclick="window.print()">پرینت گزارش</button>';
+    };
+}
+function aiAdvice() {
+    const tx = db.transaction('lessons', 'readonly');
+    const store = tx.objectStore('lessons');
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const data = event.target.result;
+        let advice = '<p>نصیحت AI: ';
+        const todayStr = new Date().toLocaleDateString('fa-IR');
+        let todayTime = 0;
+        data.forEach(item => {
+            if (item.time.startsWith(todayStr)) {
+                todayTime += parseInt(item.studyTime) || 0;
+            }
+        });
+        const goal = 8; // ساعت هدف، تغییر بده اگر می‌خوای
+        if (todayTime < goal) {
+            advice += 'امروز کم مطالعه کردی (' + todayTime + ' ساعت از ' + goal + ')—فردا تمرکز بیشتر کن!';
+        } else {
+            advice += 'عالی بودی امروز (' + todayTime + ' ساعت)—ادامه بده!';
+        }
+        advice += '</p>';
+        document.getElementById('reportOutput').innerHTML += advice;
+    };
+} 
