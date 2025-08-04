@@ -76,3 +76,10 @@ th {
     background-color: #1e1e1e;
     color: #4caf50;
 }
+#weeklyReportOutput {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-radius: 5px;
+    text-align: right;
+}
