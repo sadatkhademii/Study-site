@@ -13,7 +13,7 @@
      document.getElementById('currentTime').innerText = time;
  }
  updateDateTime();
- setInterval(updateDateTime, 1000);
+ setInterval(updateDateTime, 1000); 
 
  // وصل به Firebase برای ذخیره دائمی
  const firebaseConfig = {
@@ -29,7 +29,7 @@
  firebase.initializeApp(firebaseConfig);
  const db = firebase.firestore();
 
- // تعریف درس و سرفصل‌ها
+ // تعریف درس و سرفصل‌ها (چک اضافه برای مطمئن شدن)
  const lessons = {
      'زیست دهم': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار', 'فصل پنج', 'فصل شیش', 'فصل هفت'],
      'زیست یازدهم': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار', 'فصل پنج', 'فصل شیش', 'فصل هفت', 'فصل هشت', 'فصل نه'],
@@ -45,28 +45,36 @@
      'عمومی': [] 
  };
 
- // پر کردن سلکت درس
+ // پر کردن سلکت درس (با چک)
  const lessonSelect = document.getElementById('lesson');
- Object.keys(lessons).forEach(lesson => {
-     const option = document.createElement('option');
-     option.text = lesson;
-     lessonSelect.add(option);
- });
+ if (lessonSelect) {
+     Object.keys(lessons).forEach(lesson => {
+         const option = document.createElement('option');
+         option.text = lesson;
+         lessonSelect.add(option);
+     });
+ } else {
+     console.error('سلکت lesson پیدا نشد');
+ }
 
- // بروز سرفصل بر اساس درس
+ // بروز سرفصل بر اساس درس (با چک)
  lessonSelect.addEventListener('change', () => {
      const selectedLesson = lessonSelect.value;
      const subsectionSelect = document.getElementById('subsection');
-     subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
-     if (lessons[selectedLesson]) {
-         lessons[selectedLesson].forEach(sub => {
-             const option = document.createElement('option');
-             option.text = sub;
-             subsectionSelect.add(option);
-         });
+     if (subsectionSelect) {
+         subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
+         if (lessons[selectedLesson]) {
+             lessons[selectedLesson].forEach(sub => {
+                 const option = document.createElement('option');
+                 option.text = sub;
+                 subsectionSelect.add(option);
+             });
+         }
+         document.getElementById('generalLesson').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
+         document.getElementById('generalSub').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
+     } else {
+         console.error('سلکت subsection پیدا نشد');
      }
-     document.getElementById('generalLesson').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
-     document.getElementById('generalSub').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
  });
 
  // تابع ذخیره داده (بروز با Firebase)
@@ -88,14 +96,13 @@
      })
      .then(() => {
          alert('ثبت شد!');
-         updateCharts(); // بروز نمودار زنده
      })
      .catch((error) => {
          alert('خطا در ذخیره: ' + error);
      });
  }
 
- // تابع گزارش (با جدول زیبا)
+ // تابع گزارش (با جدول زیبا، از Firebase)
  function generateReport() {
      db.collection("lessons").get().then((querySnapshot) => {
          let output = '<table><tr><th>درس</th><th>سرفصل</th><th>فعالیت</th><th>تعداد تست</th><th>مدت تست</th><th>زمان مطالعه</th><th>زمان ثبت</th></tr>';
@@ -132,41 +139,3 @@
      advice += '</p>';
      document.getElementById('reportOutput').innerHTML += advice;
  };
-
- // بروز نمودار زنده (روزانه)
- function updateCharts() {
-     db.collection('lessons').get().then((querySnapshot) => {
-         const dailyStudy = {};
-         const dailyTest = {};
-         querySnapshot.forEach((doc) => {
-             const item = doc.data();
-             const date = item.time.split(', ')[0];
-             dailyStudy[date] = (dailyStudy[date] || 0) + item.studyTime;
-             dailyTest[date] = (dailyTest[date] || 0) + parseInt(item.testCount) || 0;
-         });
-         const dates = Object.keys(dailyStudy).sort();
-         const studyValues = dates.map(date => dailyStudy[date]);
-         const testValues = dates.map(date => dailyTest[date]);
-
-         const studyCtx = document.getElementById('studyChart').getContext('2d');
-         new Chart(studyCtx, {
-             type: 'line',
-             data: {
-                 labels: dates,
-                 datasets: [{ label: 'ساعت مطالعه روزانه', data: studyValues, borderColor: '#4caf50' }]
-             },
-             options: { scales: { y: { beginAtZero: true } } }
-         });
-
-         const testCtx = document.getElementById('testChart').getContext('2d');
-         new Chart(testCtx, {
-             type: 'line',
-             data: {
-                 labels: dates,
-                 datasets: [{ label: 'تعداد تست روزانه', data: testValues, borderColor: '#388e3c' }]
-             },
-             options: { scales: { y: { beginAtZero: true } } }
-         });
-     });
- }
- updateCharts(); // اولیه
