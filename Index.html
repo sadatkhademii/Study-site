@@ -13,12 +13,11 @@
         <p>تاریخ امروز: <span id="currentDate"></span> - ساعت: <span id="currentTime"></span></p>
         <section id="registration">
             <h2>ثبت روزانه درس</h2>
-            <select id="lesson">
-                <option>انتخاب درس</option>
-            </select>
-            <select id="subsection">
-                <option>انتخاب سرفصل</option>
-            </select>
+            <div id="lessonCards"></div> /* کارت‌های درس‌ها */
+            <div id="subsectionList" style="display: none;">
+                <h3>انتخاب سرفصل</h3>
+                <ul id="subsectionUl"></ul>
+            </div>
             <select id="activity">
                 <option>انتخاب فعالیت</option>
                 <option>تست زدم</option>
@@ -40,15 +39,7 @@
             <button onclick="generateReport()">نمایش گزارش</button>
             <div id="reportOutput"></div>
         </section>
-        <section id="charts">
-            <h2>نمودارها</h2>
-            <canvas id="studyChart" width="400" height="200"></canvas>
-            <canvas id="testChart" width="400" height="200"></canvas>
-            <button onclick="generateWeeklySummary()">جمع‌بندی هفتگی</button>
-            <button onclick="generateMonthlySummary()">جمع‌بندی ماهانه</button>
-            <div id="summaryOutput"></div>
-        </section>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="script.js"></script>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
