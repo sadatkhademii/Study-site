@@ -83,6 +83,43 @@
  // تابع ذخیره داده (بروز با Firebase)
  function saveData() {
      const lesson = document.getElementById('lesson').value;
+  // پر کردن کارت‌های درس
+const lessonCards = document.getElementById('lessonCards');
+Object.keys(lessons).forEach(lesson => {
+    const card = document.createElement('div');
+    card.classList.add('lessonCard');
+    card.textContent = lesson;
+    card.onclick = () => {
+        document.getElementById('subsectionList').style.display = 'block';
+        const subsectionUl = document.getElementById('subsectionUl');
+        subsectionUl.innerHTML = '';
+        if (lessons[lesson]) {
+            lessons[lesson].forEach(sub => {
+                const li = document.createElement('li');
+                li.textContent = sub;
+                li.onclick = () => {
+                    // ذخیره درس و سرفصل انتخابی
+                    selectedLesson = lesson;
+                    selectedSubsection = sub;
+                    alert('سرفصل ' + sub + ' انتخاب شد');
+                };
+                subsectionUl.appendChild(li);
+            });
+        } else {
+            subsectionUl.innerHTML = '<li>سرفصل ندارد</li>';
+        }
+        if (lesson === 'عمومی') {
+            document.getElementById('generalLesson').style.display = 'block';
+            document.getElementById('generalSub').style.display = 'block';
+        } else {
+            document.getElementById('generalLesson').style.display = 'none';
+            document.getElementById('generalSub').style.display = 'none';
+        }
+    };
+    lessonCards.appendChild(card);
+});
+let selectedLesson = '';
+let selectedSubsection = '';
      const subsection = document.getElementById('subsection').value;
      const activity = document.getElementById('activity').value;
      const testCount = document.getElementById('testCount').value;
