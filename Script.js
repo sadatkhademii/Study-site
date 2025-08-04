@@ -271,3 +271,49 @@ function generateMonthlySummary() {
         document.getElementById('summaryOutput').innerHTML = output + '<button onclick="window.print()">پرینت جمع‌بندی</button>';
     });
 }
+// تابع گزارش هفتگی (جدول زیبا)
+function generateWeeklyReport() {
+    db.collection("lessons").get().then((querySnapshot) => {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const weeklyData = [];
+        querySnapshot.forEach((doc) => {
+            const item = doc.data();
+            if (new Date(item.time) >= oneWeekAgo) {
+                weeklyData.push(item);
+            }
+        });
+        let output = '<table><tr><th>روز</th><th>مجموع ساعت مطالعه</th><th>مجموع تست</th></tr>';
+        const weeklySummary = {};
+        weeklyData.forEach(item => {
+            const date = item.time.split(', ')[0];
+            weeklySummary[date] = weeklySummary[date] || { study: 0, test: 0 };
+            weeklySummary[date].study += item.studyTime;
+            weeklySummary[date].test += parseInt(item.testCount) || 0;
+        });
+        Object.keys(weeklySummary).forEach(date => {
+            output += '<tr><td>' + date + '</td><td>' + weeklySummary[date].study.toFixed(2) + '</td><td>' + weeklySummary[date].test + '</td></tr>';
+        });
+        output += '</table>';
+        output += aiAdvice(weeklyData, true);
+        document.getElementById('reportOutput').innerHTML = output + '<button onclick="window.print()">پرینت گزارش هفتگی</button>';
+    });
+};
+
+// بروز aiAdvice برای هفتگی
+function aiAdvice(data, isWeekly = false) {
+    let advice = '<p>نصیحت AI: ';
+    let totalTime = 0;
+    data.forEach(item => {
+        totalTime += item.studyTime || 0;
+    });
+    const goal = 8;
+    const weeklyGoal = goal * 7;
+    if (isWeekly) {
+        advice += 'این هفته ' + totalTime.toFixed(2) + ' ساعت مطالعه کردی. اگر کمتر از ' + weeklyGoal + ' بود، سرعتت کند هست—درس‌های ضعیف رو بیشتر مرور کن (حداقل ۳ بار).';
+    } else {
+        advice += 'امروز ' + totalTime.toFixed(2) + ' ساعت مطالعه کردی. اگر کمتر از ' + goal + ' بود، فردا تمرکز کن—ضعف در درس‌ها دیده می‌شه، ۲-۳ بار مرور کن.';
+    }
+    advice += '</p>';
+    return advice;
+};
