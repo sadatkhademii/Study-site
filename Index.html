@@ -1,1 +1,28 @@
-
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سایت مطالعه کنکور من - تم هاگوارتز</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>داشبورد مطالعه کنکور ۱۴۰۵</h1>
+        <p>خوش آمدی، جادوگر مطالعه! روزهای مونده تا کنکور: <span id="daysToKonkor"></span></p>
+        <section id="registration">
+            <h2>ثبت روزانه درس</h2>
+            <select id="lesson">
+                <option>انتخاب درس (بعداً سرفصل‌ها اضافه می‌شن)</option>
+            </select>
+            <button onclick="saveData()">ثبت تست</button>
+        </section>
+        <section id="report">
+            <h2>گزارش روزانه</h2>
+            <button onclick="generateReport()">نمایش گزارش</button>
+            <div id="reportOutput"></div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
