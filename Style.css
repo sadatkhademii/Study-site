@@ -36,3 +36,15 @@ button:hover {
     border-radius: 5px;
     text-align: right; /* راست چین برای گزارش */
 }
+input, select {
+    margin: 10px 0;
+    padding: 10px;
+    width: 200px;
+    border-radius: 5px;
+    border: 1px solid #2a2f3a;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+}
+input[type="number"] {
+    width: 150px;
+}
