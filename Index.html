@@ -38,29 +38,17 @@
         <section id="report">
             <h2>گزارش روزانه</h2>
             <button onclick="generateReport()">نمایش گزارش</button>
-            <div id="reportOutput"></div> 
-            <button onclick="generateWeeklyReport()">نمایش گزارش هفتگی</button>
-        </section> 
+            <div id="reportOutput"></div>
+        </section>
         <section id="charts">
-    <h2>نمودارها</h2>
-    <canvas id="studyChart" width="400" height="200"></canvas>
-    <canvas id="testChart" width="400" height="200"></canvas>
-    <button onclick="generateWeeklySummary()">جمع‌بندی هفتگی</button>
-    <button onclick="generateMonthlySummary()">جمع‌بندی ماهانه</button>
-    <div id="summaryOutput"></div>
-</section>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> /* اضافه Chart.js برای نمودارها */
-    </div> 
-    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
-    <script src="script.js"></script>
-</body> <div class="star" style="left: 10%; animation-duration: 3s;"></div>
-<div class="star" style="left: 20%; animation-duration: 5s;"></div>
-<div class="star" style="left: 30%; animation-duration: 4s;"></div>
-<div class="star" style="left: 40%; animation-duration: 6s;"></div>
-<div class="star" style="left: 50%; animation-duration: 3s;"></div>
-<div class="star" style="left: 60%; animation-duration: 5s;"></div>
-<div class="star" style="left: 70%; animation-duration: 4s;"></div>
-<div class="star" style="left: 80%; animation-duration: 6s;"></div>
-<div class="star" style="left: 90%; animation-duration: 3s;"></div>
+            <h2>نمودارها</h2>
+            <canvas id="studyChart" width="400" height="200"></canvas>
+            <canvas id="testChart" width="400" height="200"></canvas>
+            <button onclick="generateWeeklySummary()">جمع‌بندی هفتگی</button>
+            <button onclick="generateMonthlySummary()">جمع‌بندی ماهانه</button>
+            <div id="summaryOutput"></div>
+        </section>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="script.js"></script>
+</body>
 </html>
