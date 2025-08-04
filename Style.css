@@ -79,3 +79,37 @@ canvas {
     margin: 20px auto;
     display: block;
 }
+#lessonCards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.lessonCard {
+    background-color: #1e1e1e;
+    border: 1px solid #4caf50;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.lessonCard:hover {
+    transform: scale(1.05);
+}
+#subsectionList {
+    margin-top: 20px;
+}
+#subsectionUl {
+    list-style: none;
+    padding: 0;
+}
+#subsectionUl li {
+    background-color: #2a2f3a;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#subsectionUl li:hover {
+    background-color: #4caf50;
+}
