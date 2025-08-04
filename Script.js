@@ -13,7 +13,7 @@
      document.getElementById('currentTime').innerText = time;
  }
  updateDateTime();
- setInterval(updateDateTime, 1000); // بروز هر ثانیه
+ setInterval(updateDateTime, 1000);
 
  // وصل به Firebase برای ذخیره دائمی
  const firebaseConfig = {
@@ -88,13 +88,14 @@
      })
      .then(() => {
          alert('ثبت شد!');
+         updateCharts(); // بروز نمودار زنده
      })
      .catch((error) => {
          alert('خطا در ذخیره: ' + error);
      });
  }
 
- // تابع گزارش (با جدول زیبا، از Firebase)
+ // تابع گزارش (با جدول زیبا)
  function generateReport() {
      db.collection("lessons").get().then((querySnapshot) => {
          let output = '<table><tr><th>درس</th><th>سرفصل</th><th>فعالیت</th><th>تعداد تست</th><th>مدت تست</th><th>زمان مطالعه</th><th>زمان ثبت</th></tr>';
@@ -130,10 +131,42 @@
      }
      advice += '</p>';
      document.getElementById('reportOutput').innerHTML += advice;
- }; 
-// انیمیشن زنده برای بخش‌ها (فعال شدن با ثبت)
-const originalSaveData = saveData;
-saveData = function() {
-    originalSaveData();
-    document.getElementById('registration').style.animation = 'fadeIn 1s ease-in';
-};
+ };
+
+ // بروز نمودار زنده (روزانه)
+ function updateCharts() {
+     db.collection('lessons').get().then((querySnapshot) => {
+         const dailyStudy = {};
+         const dailyTest = {};
+         querySnapshot.forEach((doc) => {
+             const item = doc.data();
+             const date = item.time.split(', ')[0];
+             dailyStudy[date] = (dailyStudy[date] || 0) + item.studyTime;
+             dailyTest[date] = (dailyTest[date] || 0) + parseInt(item.testCount) || 0;
+         });
+         const dates = Object.keys(dailyStudy).sort();
+         const studyValues = dates.map(date => dailyStudy[date]);
+         const testValues = dates.map(date => dailyTest[date]);
+
+         const studyCtx = document.getElementById('studyChart').getContext('2d');
+         new Chart(studyCtx, {
+             type: 'line',
+             data: {
+                 labels: dates,
+                 datasets: [{ label: 'ساعت مطالعه روزانه', data: studyValues, borderColor: '#4caf50' }]
+             },
+             options: { scales: { y: { beginAtZero: true } } }
+         });
+
+         const testCtx = document.getElementById('testChart').getContext('2d');
+         new Chart(testCtx, {
+             type: 'line',
+             data: {
+                 labels: dates,
+                 datasets: [{ label: 'تعداد تست روزانه', data: testValues, borderColor: '#388e3c' }]
+             },
+             options: { scales: { y: { beginAtZero: true } } }
+         });
+     });
+ }
+ updateCharts(); // اولیه
