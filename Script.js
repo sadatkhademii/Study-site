@@ -43,7 +43,7 @@ window.onload = function() {
       'فیزیک دوازدهم': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار'],
       'زمین شناسی': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار', 'فصل پنج', 'فصل شیش', 'فصل هفت', 'فصل هشت'],
       'ریاضی': ['مجموعه و الگو و دنباله', 'توان های گویا و عبارت جبری', 'معادله نامعادله درجه دو', 'تابع', 'مثلثات', 'توابع نمایی و لگاریتمی', 'هندسه', 'حد و پیوستگی', 'مشتق', 'کاربرد مشتق', 'هندسه دوازدهم', 'شمارش بدون شمردن', 'احتمال'],
-      'عمومی' : [] 
+      'عمومی': [] 
   };
   console.log('درس‌ها لود شد: ', lessons); // دیباگ، در کنسول ببین
 
@@ -142,34 +142,5 @@ window.onload = function() {
       }
       advice += '</p>';
       document.getElementById('reportOutput').innerHTML += advice;
-  };
-
-  // تابع گزارش هفتگی (جدول زیبا)
-  function generateWeeklyReport() {
-      db.collection("lessons").get().then((querySnapshot) => {
-          const oneWeekAgo = new Date();
-          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-          const weeklyData = [];
-          querySnapshot.forEach((doc) => {
-              const item = doc.data();
-              if (new Date(item.time) >= oneWeekAgo) {
-                  weeklyData.push(item);
-              }
-          });
-          let output = '<table><tr><th>روز</th><th>مجموع ساعت مطالعه</th><th>مجموع تست</th></tr>';
-          const weeklySummary = {};
-          weeklyData.forEach(item => {
-              const date = item.time.split(', ')[0];
-              weeklySummary[date] = weeklySummary[date] || { study: 0, test: 0 };
-              weeklySummary[date].study += item.studyTime;
-              weeklySummary[date].test += parseInt(item.testCount) || 0;
-          });
-          Object.keys(weeklySummary).forEach(date => {
-              output += '<tr><td>' + date + '</td><td>' + weeklySummary[date].study.toFixed(2) + '</td><td>' + weeklySummary[date].test + '</td></tr>';
-          });
-          output += '</table>';
-          output += aiAdvice(weeklyData, true);
-          document.getElementById('reportOutput').innerHTML = output + '<button onclick="window.print()">پرینت گزارش هفتگی</button>';
-      });
   };
 };
