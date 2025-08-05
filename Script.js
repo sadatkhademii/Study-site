@@ -1,4 +1,4 @@
- window.onload = function() {
+window.onload = function() {
   // محاسبه روزهای مونده تا کنکور (۷ تیر ۱۴۰۵ = ۲۰۲۶-۰۶-۲۸)
   const konkorDate = new Date('2026-06-28');
   const today = new Date();
@@ -30,7 +30,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // تعریف درس و سرفصل‌ها
+  // تعریف درس و سرفصل‌ها (با چک برای دیباگ)
   const lessons = {
       'زیست دهم': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار', 'فصل پنج', 'فصل شیش', 'فصل هفت'],
       'زیست یازدهم': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار', 'فصل پنج', 'فصل شیش', 'فصل هفت', 'فصل هشت', 'فصل نه'],
@@ -43,28 +43,39 @@
       'فیزیک دوازدهم': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار'],
       'زمین شناسی': ['فصل یک', 'فصل دو', 'فصل سه', 'فصل چهار', 'فصل پنج', 'فصل شیش', 'فصل هفت', 'فصل هشت'],
       'ریاضی': ['مجموعه و الگو و دنباله', 'توان های گویا و عبارت جبری', 'معادله نامعادله درجه دو', 'تابع', 'مثلثات', 'توابع نمایی و لگاریتمی', 'هندسه', 'حد و پیوستگی', 'مشتق', 'کاربرد مشتق', 'هندسه دوازدهم', 'شمارش بدون شمردن', 'احتمال'],
-      'عمومی': [] 
+      'عمومی' : [] 
   };
+  console.log('درس‌ها لود شد: ', lessons); // دیباگ، در کنسول ببین
 
   // پر کردن سلکت درس
   const lessonSelect = document.getElementById('lesson');
-  Object.keys(lessons).forEach(lesson => {
-      const option = document.createElement('option');
-      option.text = lesson;
-      lessonSelect.add(option);
-  });
+  if (lessonSelect) {
+      Object.keys(lessons).forEach(lesson => {
+          const option = document.createElement('option');
+          option.text = lesson;
+          lessonSelect.add(option);
+      });
+      console.log('سلکت درس پر شد');
+  } else {
+      console.error('سلکت lesson پیدا نشد');
+  }
 
   // بروز سرفصل بر اساس درس
   lessonSelect.addEventListener('change', () => {
       const selectedLesson = lessonSelect.value;
       const subsectionSelect = document.getElementById('subsection');
-      subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
-      if (lessons[selectedLesson]) {
-          lessons[selectedLesson].forEach(sub => {
-              const option = document.createElement('option');
-              option.text = sub;
-              subsectionSelect.add(option);
-          });
+      if (subsectionSelect) {
+          subsectionSelect.innerHTML = '<option>انتخاب سرفصل</option>';
+          if (lessons[selectedLesson]) {
+              lessons[selectedLesson].forEach(sub => {
+                  const option = document.createElement('option');
+                  option.text = sub;
+                  subsectionSelect.add(option);
+              });
+              console.log('سرفصل‌ها پر شد برای ' + selectedLesson);
+          }
+      } else {
+          console.error('سلکت subsection پیدا نشد');
       }
       document.getElementById('generalLesson').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
       document.getElementById('generalSub').style.display = selectedLesson === 'عمومی' ? 'block' : 'none';
@@ -131,5 +142,34 @@
       }
       advice += '</p>';
       document.getElementById('reportOutput').innerHTML += advice;
+  };
+
+  // تابع گزارش هفتگی (جدول زیبا)
+  function generateWeeklyReport() {
+      db.collection("lessons").get().then((querySnapshot) => {
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          const weeklyData = [];
+          querySnapshot.forEach((doc) => {
+              const item = doc.data();
+              if (new Date(item.time) >= oneWeekAgo) {
+                  weeklyData.push(item);
+              }
+          });
+          let output = '<table><tr><th>روز</th><th>مجموع ساعت مطالعه</th><th>مجموع تست</th></tr>';
+          const weeklySummary = {};
+          weeklyData.forEach(item => {
+              const date = item.time.split(', ')[0];
+              weeklySummary[date] = weeklySummary[date] || { study: 0, test: 0 };
+              weeklySummary[date].study += item.studyTime;
+              weeklySummary[date].test += parseInt(item.testCount) || 0;
+          });
+          Object.keys(weeklySummary).forEach(date => {
+              output += '<tr><td>' + date + '</td><td>' + weeklySummary[date].study.toFixed(2) + '</td><td>' + weeklySummary[date].test + '</td></tr>';
+          });
+          output += '</table>';
+          output += aiAdvice(weeklyData, true);
+          document.getElementById('reportOutput').innerHTML = output + '<button onclick="window.print()">پرینت گزارش هفتگی</button>';
+      });
   };
 };
