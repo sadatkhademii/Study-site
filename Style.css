@@ -1,11 +1,12 @@
- body {
-    background-color: #0f111a; /* سبز تیره هاگوارتز */
-    color: #d4d4d4; /* نقره‌ای */
+body {
+    background: linear-gradient(to bottom, #0f111a, #1e1e1e); /* گرادیان سبز تیره برای تم هاگوارتز */
+    color: #d4d4d4;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     margin: 0;
     padding: 20px;
     direction: rtl;
+    overflow: auto; /* برای حرکت صفحه */
 }
 .container {
     max-width: 800px;
@@ -16,7 +17,7 @@
     box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
 }
 h1, h2 {
-    color: #4caf50; /* سبز روشن */
+    color: #4caf50;
 }
 button {
     background-color: #4caf50;
@@ -25,7 +26,7 @@ button {
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    animation: glow 2s ease-in-out infinite alternate; /* نگه داشتن انیمیشن درخشش دکمه */
+    animation: glow 2s ease-in-out infinite alternate;
 }
 button:hover {
     background-color: #388e3c;
